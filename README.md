@@ -1,3 +1,10 @@
+# Para rodar o projeto
+passar o conteúdo a seguir em Environment Variables no Edit Configuration do Intellij
+mvn quarkus:dev QUARKUS_CLIENT_HTTP=localhost;QUARKUS_CLIENT_HTTP_PORT=8181;QUARKUS_DATASOURCE_USERNAME=joao;QUARKUS_DATASOURCE_PASSWORD=joao;QUARKUS_DATASOURCE_HOST=localhost;QUARKUS_DATASOURCE_PORT=5433
+
+
+
+
 # banking-service
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
