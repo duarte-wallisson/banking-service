@@ -3,8 +3,8 @@ services:
     image: postgres:14
     container_name: postgres-db-alura-banking-service-container
     environment:
-      - POSTGRES_USER=
-      - POSTGRES_PASSWORD=
+      - POSTGRES_USER=joao
+      - POSTGRES_PASSWORD=joao
       - POSTGRES_DB=agencia
     ports:
       - 5433:5432
