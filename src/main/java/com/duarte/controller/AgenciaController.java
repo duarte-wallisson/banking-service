@@ -1,8 +1,7 @@
 package com.duarte.controller;
 
 import com.duarte.domain.Agencia;
-import com.duarte.service.http.AgenciaService;
-import jakarta.inject.Inject;
+import com.duarte.service.AgenciaService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.UriInfo;
@@ -10,8 +9,11 @@ import org.jboss.resteasy.reactive.RestResponse;
 
 @Path("/agencias")
 public class AgenciaController {
-    @Inject
-    protected AgenciaService agenciaService;
+    private final AgenciaService agenciaService;
+
+    public AgenciaController(AgenciaService agenciaService) {
+        this.agenciaService = agenciaService;
+    }
 
     @POST
     public RestResponse<Void> cadastrar(Agencia agencia, @Context UriInfo uriInfo) {

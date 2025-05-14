@@ -1,15 +1,15 @@
 package com.duarte.service.http;
 
-import com.duarte.http.AgenciaHttp;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/situacao-cadastral")
 @RegisterRestClient(configKey = "situacao-cadastral-api")
-interface SituacaoCadastralHttpService {
+public interface SituacaoCadastralHttpService {
     @GET
     @Path("{cnpj}")
-    AgenciaHttp buscarPorCnpj(String cnpj);
+    AgenciaHttp buscarPorCnpj(@PathParam("cnpj") String cnpj);
 
 }
