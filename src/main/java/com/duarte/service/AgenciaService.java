@@ -5,6 +5,8 @@ import com.duarte.exceptions.AgenciaNaoAtivaOuNaoEncontradaException;
 import com.duarte.service.http.SituacaoCadastral;
 import com.duarte.service.http.SituacaoCadastralHttpService;
 import com.duarte.repository.AgenciaRepository;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -17,25 +19,32 @@ public class AgenciaService {
 
     private final SituacaoCadastralHttpService situacaoCadastralHttpService;
     private final AgenciaRepository agenciaRepository;
+    private final MeterRegistry meterRegistry;
 
     @Inject
     public AgenciaService(@RestClient SituacaoCadastralHttpService situacaoCadastralHttpService,
-                         AgenciaRepository agenciaRepository) {
+                         AgenciaRepository agenciaRepository, MeterRegistry meterRegistry) {
         this.situacaoCadastralHttpService = situacaoCadastralHttpService;
         this.agenciaRepository = agenciaRepository;
+        this.meterRegistry = meterRegistry;
     }
 
     @Transactional
     public void cadastrar(Agencia agencia) {
-        var agenciaHttp = situacaoCadastralHttpService.buscarPorCnpj(agencia.getCnpj());
+        Timer timer = this.meterRegistry.timer("cadastrar_agencia_timer");
+        timer.record(() -> {
+            var agenciaHttp = situacaoCadastralHttpService.buscarPorCnpj(agencia.getCnpj());
 
-        if (agenciaHttp != null && agenciaHttp.getSituacaoCadastral().equals(SituacaoCadastral.ATIVO)) {
-            agenciaRepository.persist(agencia);
-            Log.info("Agência com o CNPJ " + agencia.getCnpj() + " cadastrada com sucesso!");
-        } else {
-            Log.info("Agência com o CNPJ " + agencia.getCnpj() + " não cadastrada!");
-            throw new AgenciaNaoAtivaOuNaoEncontradaException();
-        }
+            if (agenciaHttp != null && agenciaHttp.getSituacaoCadastral().equals(SituacaoCadastral.ATIVO)) {
+                agenciaRepository.persist(agencia);
+                meterRegistry.counter("agencia_cadastrada_counter").increment();
+                Log.info("Agência com o CNPJ " + agencia.getCnpj() + " cadastrada com sucesso!");
+            } else {
+                Log.info("Agência com o CNPJ " + agencia.getCnpj() + " não cadastrada!");
+                meterRegistry.counter("agencia_nao_cadastrada_counter").increment();
+                throw new AgenciaNaoAtivaOuNaoEncontradaException();
+            }
+        });
     }
 
     public Agencia buscarPorId(Long id) {
